@@ -1,13 +1,20 @@
 <?php
 
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\ResponseInterface as Response;
+use DI\Container;
+use DI\ContainerBuilder;
 
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// $builder = new ContainerBuilder();
+// $builder->addDefinitions();
+// $container = $builder->build();
+
+// $app = AppFactory::create($container);
 $app = AppFactory::create();
+// Parse json, form data and xml
+$app->addBodyParsingMiddleware();
 
 require './bootstrap.php';
 

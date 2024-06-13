@@ -9,7 +9,8 @@
         "selective/basepath": "^2.2",
         "illuminate/database": "^11.10",
         "symfony/console": "^7.1",
-        "php-di/php-di": "^7.0"
+        "php-di/php-di": "^7.0",
+        "justinrainbow/json-schema": "^5.2"
     },
     "autoload": {
         "psr-4": {

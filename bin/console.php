@@ -4,8 +4,6 @@ use App\Console\MigrationCommand;
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\ArgvInput;
-use \Illuminate\Database\Capsule\Manager as Capsule;
 
 define('RUNNING_IN_CONSOLE', 1);
 putenv('DATABASE_HOST=127.0.0.1');
