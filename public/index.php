@@ -13,8 +13,12 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // $app = AppFactory::create($container);
 $app = AppFactory::create();
+
+$app->addRoutingMiddleware();
 // Parse json, form data and xml
 $app->addBodyParsingMiddleware();
+
+$app->addErrorMiddleware(true, true, true);
 
 require './bootstrap.php';
 
