@@ -1,0 +1,11 @@
+{
+    "name": "martin3zra/stocks-tracker",
+    "type": "project",
+    "description": "Lightweight REST API using Slim Framework to check on stocks.",
+    "keywords": ["slim", "framework", "stocks"],
+    "require": {
+        "slim/slim": "4.*",
+        "slim/psr7": "^1.7",
+        "selective/basepath": "^2.2"
+    }
+}

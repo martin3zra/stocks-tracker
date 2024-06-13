@@ -1,0 +1,36 @@
+version: '3'
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8890:80"
+    volumes:
+      - ./docker/conf.d:/etc/nginx/conf.d
+      - ./:/stocks
+    depends_on:
+      - php
+    restart: always
+  php:
+    build:
+      context: .
+      dockerfile: docker/PHP.Dockerfile
+    volumes:
+      - ./:/stocks
+    depends_on:
+      - mysql
+    restart: always
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: stocks
+      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: stocks
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - "33067:3306"
+    restart: always
+volumes:
+  stocks: {}
+
