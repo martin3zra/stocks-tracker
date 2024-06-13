@@ -29,6 +29,18 @@ class MigrationCommand extends Command
             $table->timestamps();
         });
 
+        Capsule::schema()->create('query_histories', function ($table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->string('name');
+            $table->string('symbol');
+            $table->string('open');
+            $table->string('high');
+            $table->string('low');
+            $table->string('close');
+            $table->timestamps();
+        });
+
         $output->writeln("<info>Database has been migrated!</info>");
 
         return 0;

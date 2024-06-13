@@ -18,6 +18,10 @@ class StockFetcher
 
         $stockData = $this->requestCsvFileUsingStockCode($params['q']);
 
+        $user = $request->getAttribute('user');
+
+        $user->queryHistories()->create($stockData);
+
         $response->getBody()->write(json_encode($stockData));
 
         return $response->withStatus(200);
