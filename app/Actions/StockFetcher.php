@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
 use GuzzleHttp\Client;
@@ -36,7 +38,8 @@ class StockFetcher
             'timeout'  => 10,
         ]);
 
-        $fileUniquePrefix = md5(rand());
+        $time = microtime();
+        $fileUniquePrefix = md5("$time");
         $filename = "$fileUniquePrefix-$stockCode.csv";
 
         //Request the stock and save the result stream as file
