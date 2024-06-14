@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\User;
-use GuzzleHttp\Client;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Symfony\Component\Mime\Email;
 
 class StockFetcher
 {
@@ -31,7 +29,7 @@ class StockFetcher
 
         $stockData = $this->requestStockAndNotifyUser($user, $params['q']);
 
-        $user->queryHistories()->create($stockData);
+        $user->logQuerySearch($stockData);
 
         $response->getBody()->write(json_encode($stockData));
 
@@ -41,55 +39,29 @@ class StockFetcher
     private function requestStockAndNotifyUser(User $user, string $stockCode): array
     {
 
-        $client = new Client([
-            // Base URI is used with relative requests
-            'base_uri' => 'https://stooq.com',
-            'timeout'  => 10,
-        ]);
+        $filename = $this->container
+            ->get('stockClient')
+            ->getStockInformation($stockCode);
 
-        $time = microtime();
-        $fileUniquePrefix = md5("$time");
-        $filename = "$fileUniquePrefix-$stockCode.csv";
+        $csvHandler = new CsvHandler($filename);
+        $csvData = $csvHandler->map();
 
-        //Request the stock and save the result stream as file
-        $client->request('GET', "/q/l/?s=$stockCode&f=sd2t2ohlcvn&h&e=csv", ['sink' => $filename]);
+        $user->notify($this->container->get('notifier'), $filename, $stockCode, $csvData);
 
-        $this->notifyUser($user, $filename, $stockCode);
+        $csvHandler->deleteFile();
 
-        return $this->readAndMapCsvFileContents($filename);
+        return $this->transformValues($csvData[1]);
     }
 
-    private function readAndMapCsvFileContents(string $filename): array
+    private function transformValues(array $values): array
     {
-        //Read and map CSV from the downloaed file
-        $csv = array_map('str_getcsv', file($filename))[1];
-
-        //This removes downloaded the file
-        if(file_exists($filename)) {
-            unlink($filename);
-        }
-
         return [
-            'name' => $csv[8],
-            'symbol' => $csv[0],
-            'open' => $csv[3],
-            'high' => $csv[4],
-            'low' => $csv[5],
-            'close' => $csv[6],
+            'name' => $values[8],
+            'symbol' => $values[0],
+            'open' => $values[3],
+            'high' => $values[4],
+            'low' => $values[5],
+            'close' => $values[6],
         ];
-    }
-
-    private function notifyUser(User $user, string $filename, $stockCode): void
-    {
-        $email = (new Email())
-            ->from('hello@stock-tracker.test')
-            ->to($user->email)
-            ->subject('Stock Query Result!')
-            ->attachFromPath($filename)
-            ->html('
-                <p>Hey '. $user->name. ' the data we were able to find base on your query criteria using the stock code: <b>'.$stockCode.'</b> is available in the attached CSV file!</p>
-            ');
-
-        $this->container->get('mailer')->send($email);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
-use App\Actions\StockFetcher;
+use App\Actions\UserNotifier;
+use App\Services\StockClient;
 use DI\Container;
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
@@ -18,11 +19,20 @@ $ENV = $_ENV['ENV'] ?? 'dev';
 
 $containerBuilder = new ContainerBuilder();
 $container = $containerBuilder->build();
+
 $container->set('mailer', function (ContainerInterface $containter) {
 
     $transport = Transport::fromDsn($_ENV['MAILER_DSN']);
 
     return new Mailer($transport);
+});
+
+$container->set('stockClient', function(ContainerInterface $container) {
+    return new StockClient();
+});
+
+$container->set('notifier', function(ContainerInterface $container) {
+    return new UserNotifier($container->get('mailer'));
 });
 
 AppFactory::setContainer($container);
