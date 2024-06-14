@@ -5,12 +5,12 @@ use \Illuminate\Database\Capsule\Manager as Capsule;
 $capsule = new Capsule;
 
 $config = [
-    'driver' => 'mysql',
-    'host' => getenv('DATABASE_HOST'),
-    'port' => getenv('DATABASE_PORT'),
-    'database' => 'stocks',
-    'username' => 'root',
-    'password' => 'secret',
+    'driver' => $_ENV['DATABASE_DRIVER'],
+    'host' => $_ENV['DATABASE_HOST'],
+    'port' => $_ENV['DATABASE_PORT'],
+    'database' => $_ENV['DATABASE_NAME'],
+    'username' => $_ENV['DATABASE_USERNAME'],
+    'password' => $_ENV['DATABASE_PASSWORD'],
     'charset' => 'utf8',
     'collation' => 'utf8_unicode_ci',
     'prefix' => '',
@@ -19,7 +19,7 @@ $config = [
 
 if (RUNNING_IN_CONSOLE == 1) {
     $config['unix_socket'] = '';
-    $config['host'] = getenv('DATABASE_HOST');
+    $config['host'] = $_ENV['CONSOLE_DATABASE_HOST'];
 } else {
     // When running the API remove port from the connection
     // Bc is been running inside the container

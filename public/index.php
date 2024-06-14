@@ -1,24 +1,28 @@
 <?php
 
-use DI\Container;
-use DI\ContainerBuilder;
-
 use Slim\Factory\AppFactory;
+use Symfony\Component\Dotenv\Dotenv;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// $builder = new ContainerBuilder();
-// $builder->addDefinitions();
-// $container = $builder->build();
+$dotenv = new Dotenv();
+$dotenv->load(__DIR__ . '/../.env');
 
-// $app = AppFactory::create($container);
+$ENV = $_ENV['ENV'] ?? 'dev';
+
 $app = AppFactory::create();
 
 $app->addRoutingMiddleware();
+
 // Parse json, form data and xml
 $app->addBodyParsingMiddleware();
 
-$app->addErrorMiddleware(true, true, true);
+$displayErrorDetails = $ENV == 'dev';
+$errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, true, true);
+
+// Error Handler
+$errorHandler = $errorMiddleware->getDefaultErrorHandler();
+$errorHandler->forceContentType('application/json');
 
 require './bootstrap.php';
 

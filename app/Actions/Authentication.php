@@ -42,7 +42,7 @@ class Authentication
             'email' => $user->email,
         ];
 
-        $token = JWT::encode($payload, 'some random key here', 'HS256');
+        $token = JWT::encode($payload, $_ENV['APP_KEY'], 'HS256');
 
         return $token;
     }

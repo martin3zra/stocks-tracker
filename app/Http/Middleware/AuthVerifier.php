@@ -6,6 +6,7 @@ use App\Models\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\ExpiredException;
+use Firebase\JWT\SignatureInvalidException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -29,19 +30,19 @@ class AuthVerifier
         $token = explode(" ", $request->getHeaderLine('Authorization'))[1];
 
         try {
-            $decoded = JWT::decode($token, new Key('some random key here', 'HS256'));
+            $decoded = JWT::decode($token, new Key($_ENV['APP_KEY'], 'HS256'));
 
             $user = User::where('email', $decoded->email)->firstOrFail();
             $request = $request->withAttribute('user', $user);
 
             $response = $handler->handle($request);
             return $response->withHeader('Content-type', 'application/json');
-        } catch(ExpiredException $e) {
+        } catch(ExpiredException|SignatureInvalidException $e) {
             $response->getBody()->write(json_encode(['message' => $e->getMessage()]));
-            return $response->withStatus(401);
         } catch(ModelNotFoundException $e) {
             $response->getBody()->write(json_encode(['message' => 'Invalid Authorization Token']));
-            return $response->withStatus(401);
         }
+
+        return $response->withStatus(401);
     }
 }
