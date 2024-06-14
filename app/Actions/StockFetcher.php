@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Models\User;
 use GuzzleHttp\Client;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Symfony\Component\Mime\Email;
 
 class StockFetcher
 {
+
+    public function __construct(public ContainerInterface $container)
+    {
+
+    }
+
     public function __invoke(Request $request, Response $response, $args): Response
     {
         $params = $request->getQueryParams();
@@ -18,9 +27,9 @@ class StockFetcher
             return $response->withStatus(422);
         }
 
-        $stockData = $this->requestCsvFileUsingStockCode($params['q']);
-
         $user = $request->getAttribute('user');
+
+        $stockData = $this->requestStockAndNotifyUser($user, $params['q']);
 
         $user->queryHistories()->create($stockData);
 
@@ -29,7 +38,7 @@ class StockFetcher
         return $response->withStatus(200);
     }
 
-    private function requestCsvFileUsingStockCode(string $stockCode): array
+    private function requestStockAndNotifyUser(User $user, string $stockCode): array
     {
 
         $client = new Client([
@@ -44,6 +53,8 @@ class StockFetcher
 
         //Request the stock and save the result stream as file
         $client->request('GET', "/q/l/?s=$stockCode&f=sd2t2ohlcvn&h&e=csv", ['sink' => $filename]);
+
+        $this->notifyUser($user, $filename, $stockCode);
 
         return $this->readAndMapCsvFileContents($filename);
     }
@@ -66,5 +77,19 @@ class StockFetcher
             'low' => $csv[5],
             'close' => $csv[6],
         ];
+    }
+
+    private function notifyUser(User $user, string $filename, $stockCode): void
+    {
+        $email = (new Email())
+            ->from('hello@stock-tracker.test')
+            ->to($user->email)
+            ->subject('Stock Query Result!')
+            ->attachFromPath($filename)
+            ->html('
+                <p>Hey '. $user->name. ' the data we were able to find base on your query criteria using the stock code: <b>'.$stockCode.'</b> is available in the attached CSV file!</p>
+            ');
+
+        $this->container->get('mailer')->send($email);
     }
 }
