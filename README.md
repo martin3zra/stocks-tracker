@@ -26,8 +26,10 @@ Stock Tracker uses a number of open source projects to work properly:
 - [Symfony Mime](https://github.com/symfony/mime) - Allows manipulating MIME messages
 - [RabbitMQ](https://www.rabbitmq.com) - RabbitMQ is a reliable and mature messaging and streaming broker, which is easy to deploy on cloud environments, on-premises, and on your local machine. It is currently used by millions worldwide.
 
-And of course Stock Tracker itself is open source with a [martin3zra/stocks-tracker](https://github.com/martin3zra/stocks-tracker)
- on GitHub.
+And of course Stock Tracker itself is open source with a [martin3zra/stocks-tracker](https://github.com/martin3zra/stocks-tracker) on GitHub.
+
+## Requirements:
+In order to use and test this REST Api you'll need to have previously set up in your machine a [Docker](https://www.docker.com/) installation.
 
 ## Installation
 
