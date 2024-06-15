@@ -79,11 +79,9 @@ And finally to be to listen/consume the messages broadcastest by RabbyMQ we need
 ```sh
 docker exec -it slim php bin/listener.php
 ```
-now you should see a Started to listen output in your console.
+now you should see a Started to listen output in your console. And with that you're all set to request stock quotes.
 
-Here you can find the [Postman collection](https://github.com/martin3zra/stocks-tracker/blob/main/Stock%20Tracker.postman_collection.json) to test the app.
-
-And with that you're all set to request stock quotes.
+To help you out, we've provided a [Postman collection](https://github.com/martin3zra/stocks-tracker/blob/main/Stock%20Tracker.postman_collection.json) to test the app that contains the endpoins and payloads you need to test all our features.
 
 ## License
 
