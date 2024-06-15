@@ -52,10 +52,8 @@ Install the dependencies and devDependencies and start the server.
 docker exec -it slim composer install
 ```
 
-Let's create the environment file
+Let's create the environment file `Make sure to add the APP_KEY, and change the credentials for mailtrap once the .env is created`.
 ```sh
-# Make sure to add the APP_KEY, and change the credentials for mailtrap once the .env is created.
-
 cp .env.example .env
 ```
 
