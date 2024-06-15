@@ -11,11 +11,15 @@ services:
       - php
     restart: always
   php:
+    container_name: slim
     build:
       context: .
       dockerfile: docker/PHP.Dockerfile
     volumes:
       - ./:/stocks
+    links:
+      - mysql
+      - rabbitmq
     depends_on:
       - mysql
     restart: always
@@ -31,6 +35,16 @@ services:
     ports:
       - "33067:3306"
     restart: always
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.10.6-management-alpine
+    hostname: stocks-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - '5672:5672'
+      - '15672:15672'
 volumes:
   stocks: {}
 

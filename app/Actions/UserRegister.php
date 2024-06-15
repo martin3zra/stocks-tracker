@@ -12,6 +12,12 @@ class UserRegister
     {
         $data = $request->getParsedBody();
 
+        $user = User::where('email', $data['email'])->first();
+        if ($user != null) {
+            $response->getBody()->write(json_encode(['message' => 'An account with the email already exists']));
+            return $response->withStatus(409);
+        }
+
         User::create([
             'name' => $data['name'],
             'email' => $data['email'],

@@ -3,8 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use App\Services\TokenizerContract;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -14,6 +13,11 @@ use Slim\Psr7\Response as Response;
 
 class AuthVerifier
 {
+    public function __construct(private TokenizerContract $tokenizer)
+    {
+
+    }
+
     public function __invoke(Request $request, RequestHandler $handler)
     {
         $response = new Response();
@@ -22,21 +26,18 @@ class AuthVerifier
 
             $response->getBody()->write(json_encode(['message' => 'Missing Authorization header']));
 
-            return $response
-                ->withStatus(401)
-                ->withHeader('Content-type', 'application/json');
+            return $response->withStatus(401);
         }
 
-        $token = explode(" ", $request->getHeaderLine('Authorization'))[1];
-
         try {
-            $decoded = JWT::decode($token, new Key($_ENV['APP_KEY'], 'HS256'));
+            $decoded = $this->tokenizer->verifyToken(
+                $request->getHeaderLine('Authorization')
+            );
 
             $user = User::where('email', $decoded->email)->firstOrFail();
             $request = $request->withAttribute('user', $user);
 
-            $response = $handler->handle($request);
-            return $response->withHeader('Content-type', 'application/json');
+            return $handler->handle($request);
         } catch(ExpiredException|SignatureInvalidException $e) {
             $response->getBody()->write(json_encode(['message' => $e->getMessage()]));
         } catch(ModelNotFoundException $e) {

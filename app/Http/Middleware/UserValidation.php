@@ -35,8 +35,6 @@ class UserValidation {
 
         $response = new Response();
         $response->getBody()->write(json_encode($validator->getErrors()));
-        return $response
-            ->withStatus(422)
-            ->withHeader('Content-type', 'application/json');
+        return $response->withStatus(422);
     }
 }

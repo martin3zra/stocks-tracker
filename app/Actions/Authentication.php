@@ -1,15 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
 use App\Models\User;
+use App\Services\TokenizerContract;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Firebase\JWT\JWT;
 
 class Authentication
 {
+    public function __construct(private TokenizerContract $tokenizer)
+    {
+
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
@@ -22,7 +29,9 @@ class Authentication
                 return $response->withStatus(401);
             }
 
-            $response->getBody()->write(json_encode(['token' => $this->createToken($user)]));
+            $response->getBody()->write(json_encode([
+                'token' => $this->tokenizer->createToken($user->email),
+            ]));
 
             return $response->withStatus(200);
 
@@ -33,17 +42,4 @@ class Authentication
         }
     }
 
-    private function createToken(User $user): string
-    {
-        $payload = [
-            'iss' => 'stocks',
-            'iat' => time(),
-            'exp' => strtotime('+1 hour'),
-            'email' => $user->email,
-        ];
-
-        $token = JWT::encode($payload, $_ENV['APP_KEY'], 'HS256');
-
-        return $token;
-    }
 }

@@ -29,13 +29,12 @@ class AuthValidation {
 
         if ($validator->isValid()) {
             $response = $handler->handle($request);
-            return $response->withHeader('Content-type', 'application/json');;
+            return $response;
         }
 
         $response = new Response();
         $response->getBody()->write(json_encode($validator->getErrors()));
         return $response
-            ->withStatus(422)
-            ->withHeader('Content-type', 'application/json');
+            ->withStatus(422);
     }
 }

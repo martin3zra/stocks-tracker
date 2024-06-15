@@ -7,7 +7,6 @@ $capsule = new Capsule;
 $config = [
     'driver' => $_ENV['DATABASE_DRIVER'],
     'host' => $_ENV['DATABASE_HOST'],
-    'port' => $_ENV['DATABASE_PORT'],
     'database' => $_ENV['DATABASE_NAME'],
     'username' => $_ENV['DATABASE_USERNAME'],
     'password' => $_ENV['DATABASE_PASSWORD'],
@@ -17,17 +16,9 @@ $config = [
     'unix_socket' => '',
 ];
 
-if (RUNNING_IN_CONSOLE == 1) {
-    $config['unix_socket'] = '';
-    $config['host'] = $_ENV['CONSOLE_DATABASE_HOST'];
-} else {
-    // When running the API remove port from the connection
-    // Bc is been running inside the container
-    unset($config['port']);
-}
-
 $capsule->addConnection($config);
 
+// Make it global, so we can use it on the migration symfony command
 $capsule->setAsGlobal();
 
 $capsule->bootEloquent();

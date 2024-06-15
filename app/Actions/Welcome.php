@@ -11,6 +11,6 @@ class Welcome
     {
         $response->getBody()->write(json_encode(['message' => 'Welcome to Stock tracker API']));
 
-        return $response->withHeader('Content-Type', 'application/json');
+        return $response;
     }
 }

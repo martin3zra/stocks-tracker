@@ -5,52 +5,54 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\User;
-use Psr\Container\ContainerInterface;
+use App\Services\Dispatcher;
+use App\Services\StockClientContract;
+use App\Traits\HtmlGenerator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class StockFetcher
 {
 
-    public function __construct(public ContainerInterface $container)
+    use HtmlGenerator;
+
+    public function __construct(
+        private Dispatcher $dispatcher,
+        private StockClientContract $stockClient,
+    )
     {
 
     }
 
     public function __invoke(Request $request, Response $response, $args): Response
     {
-        $params = $request->getQueryParams();
-        if (!array_key_exists('q', $params)) {
+        if (!array_key_exists('q', $request->getQueryParams())) {
             $response->getBody()->write(json_encode(['message' => 'The q query item is required']));
             return $response->withStatus(422);
         }
 
-        $user = $request->getAttribute('user');
-
-        $stockData = $this->requestStockAndNotifyUser($user, $params['q']);
-
-        $user->logQuerySearch($stockData);
+        $stockData = $this->requestStockNotifyUserAndLog($request);
 
         $response->getBody()->write(json_encode($stockData));
 
         return $response->withStatus(200);
     }
 
-    private function requestStockAndNotifyUser(User $user, string $stockCode): array
+    private function requestStockNotifyUserAndLog(Request $request): array
     {
+        $stockCode = $request->getQueryParams()['q'];
+        $filename = $this->stockClient->getStockInformation($stockCode);
 
-        $filename = $this->container
-            ->get('stockClient')
-            ->getStockInformation($stockCode);
+        $csvData = array_map('str_getcsv', file($filename));
 
-        $csvHandler = new CsvHandler($filename);
-        $csvData = $csvHandler->map();
+        $user = $request->getAttribute('user');
+        $this->queueNotification($user, ['filename' => $filename, 'code' => $stockCode, 'data' => $csvData]);
 
-        $user->notify($this->container->get('notifier'), $filename, $stockCode, $csvData);
+        $stockData = $this->transformValues($csvData[1]);
 
-        $csvHandler->deleteFile();
+        $user->logQuerySearch($stockData);
 
-        return $this->transformValues($csvData[1]);
+        return $stockData;
     }
 
     private function transformValues(array $values): array
@@ -63,5 +65,19 @@ class StockFetcher
             'low' => $values[5],
             'close' => $values[6],
         ];
+    }
+
+    private function queueNotification(User $user, array $attributes = [])
+    {
+        $payload = [
+            'to' => [
+                'email' => $user->email,
+                'name' => $user->name,
+            ],
+            'attachetmentPath' => $attributes['filename'],
+            'html' => $this->generateHtmlContent($user->name, $attributes['code'], $attributes['data']),
+        ];
+
+        $this->dispatcher->dispatch($payload);
     }
 }

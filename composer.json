@@ -15,7 +15,8 @@
         "guzzlehttp/guzzle": "^7.8",
         "symfony/dotenv": "^7.1",
         "symfony/mailer": "^7.1",
-        "symfony/mime": "^7.1"
+        "symfony/mime": "^7.1",
+        "php-amqplib/php-amqplib": "^3.6"
     },
     "autoload": {
         "psr-4": {

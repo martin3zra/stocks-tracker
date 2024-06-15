@@ -1,14 +1,8 @@
 <?php
 
-use App\Actions\UserNotifier;
-use App\Services\StockClient;
-use DI\Container;
 use DI\ContainerBuilder;
-use Psr\Container\ContainerInterface;
 use Slim\Factory\AppFactory;
 use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mailer\Transport;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -17,23 +11,12 @@ $dotenv->load(__DIR__ . '/../.env');
 
 $ENV = $_ENV['ENV'] ?? 'dev';
 
-$containerBuilder = new ContainerBuilder();
-$container = $containerBuilder->build();
+$builder = new ContainerBuilder();
 
-$container->set('mailer', function (ContainerInterface $containter) {
+$services = require __DIR__ . '/../public/services.php';
+$services($builder);
 
-    $transport = Transport::fromDsn($_ENV['MAILER_DSN']);
-
-    return new Mailer($transport);
-});
-
-$container->set('stockClient', function(ContainerInterface $container) {
-    return new StockClient();
-});
-
-$container->set('notifier', function(ContainerInterface $container) {
-    return new UserNotifier($container->get('mailer'));
-});
+$container = $builder->build();
 
 AppFactory::setContainer($container);
 

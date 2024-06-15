@@ -21,6 +21,7 @@ RUN docker-php-ext-install -j "$(nproc)" \
     exif \
     gd \
     intl \
+    sockets \
     zip
 
 RUN docker-php-ext-configure gd \
@@ -39,8 +40,6 @@ RUN set -eux; \
     } > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 RUN pecl install xdebug && docker-php-ext-enable xdebug
-
-# RUN pecl install imagick && docker-php-ext-enable imagick
 
 RUN adduser stocks
 USER stocks
