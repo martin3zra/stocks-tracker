@@ -43,9 +43,7 @@ cd stocks-tracker
 
 Build docker container by using the `docker-compose.yml` file.
 ```sh
-docker compose build
-# Run the container in background mode
-docker compose up -d
+docker compose build && docker compose up -d
 ```
 
 Install the dependencies and devDependencies and start the server.
