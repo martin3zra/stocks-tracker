@@ -1,6 +1,6 @@
 <?php
 
-use App\Actions\UserNotifier;
+use App\Actions\UserNotification;
 use App\Services\Listener;
 use DI\ContainerBuilder;
 use PhpAmqpLib\Channel\AMQPChannel;
@@ -20,7 +20,7 @@ $container = $builder->build();
 
 $listener = new Listener(
     $container->get(AMQPChannel::class),
-    $container->get(UserNotifier::class),
+    $container->get(UserNotification::class),
     new ConsoleOutput(),
 );
 $listener->listen();

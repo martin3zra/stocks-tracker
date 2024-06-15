@@ -2,17 +2,15 @@
 
 namespace App\Services;
 
-use App\Actions\UserNotifier;
+use App\Actions\UserNotification;
 use PhpAmqpLib\Channel\AMQPChannel;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Mailer\MailerInterface;
 
 class Listener
 {
     public function __construct(
         private AMQPChannel $channel,
-        private UserNotifier $userNotifier,
+        private UserNotification $notification,
         private OutputInterface $output
     )
     {
@@ -35,7 +33,7 @@ class Listener
             function ($message) {
                 $this->output->writeln("Consuming message");
                 $attribues = json_decode($message->body, true);
-                $this->userNotifier->send($attribues['to'], $attribues['attachetmentPath'], $attribues['html'],);
+                $this->notification->send($attribues['to'], $attribues['attachetmentPath'], $attribues['html'],);
 
                 $channel = $message->delivery_info['channel'];
                 $channel->basic_ack($message->delivery_info['delivery_tag']);
