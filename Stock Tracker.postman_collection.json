@@ -1,0 +1,168 @@
+{
+	"info": {
+		"_postman_id": "cdeede5b-c5a4-443c-b9d5-efa3c40e3d9b",
+		"name": "Stock Tracker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "588327"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Jhon\",\n    \"email\": \"jhon.doe@example.com\",\n    \"password\": \"some random password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.8:8890/api/users",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"8"
+					],
+					"port": "8890",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authenticate User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"nathalia@example.com\",\n    \"password\": \"some random password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.8:8890/api/auth",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"8"
+					],
+					"port": "8890",
+					"path": [
+						"api",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Stock",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdG9ja3MiLCJpYXQiOjE3MTg0NDczNjAsImV4cCI6MTcxODQ1MDk2MCwiZW1haWwiOiJuYXRoYWxpYUBleGFtcGxlLmNvbSJ9.Xk9c_o2P_DKVzz7YJssFvz-RzVMFpmYv67Inh8y_xtQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.0.8:8890/api/stock?q=AAL.US",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"8"
+					],
+					"port": "8890",
+					"path": [
+						"api",
+						"stock"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "AAL.US"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get History",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdG9ja3MiLCJpYXQiOjE3MTg0NDk2NzksImV4cCI6MTcxODQ1MzI3OSwiZW1haWwiOiJuYXRoYWxpYUBleGFtcGxlLmNvbSJ9.pkWLCpUqP456tV5pGKiOBUC8wkpmpYnl5yaGzvIZS3k",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.0.8:8890/api/history",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"8"
+					],
+					"port": "8890",
+					"path": [
+						"api",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Hello API",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.0.8:8890/api",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"8"
+					],
+					"port": "8890",
+					"path": [
+						"api"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
