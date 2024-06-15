@@ -24,6 +24,11 @@ RUN docker-php-ext-install -j "$(nproc)" \
     sockets \
     zip
 
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+    php composer-setup.php && \
+    php -r "unlink('composer-setup.php');" && \
+    mv composer.phar /usr/local/bin/composer
+
 RUN docker-php-ext-configure gd \
     --with-freetype \
     --with-jpeg \
