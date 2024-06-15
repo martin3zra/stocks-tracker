@@ -52,12 +52,23 @@ Install the dependencies and devDependencies and start the server.
 docker exec -it slim composer install
 ```
 
-Let's create the environment file `Make sure to add the APP_KEY, and change the credentials for mailtrap once the .env is created`.
+Let's create the environment file
 ```sh
 cp .env.example .env
 ```
+ 
+Now make sure to add the `APP_KEY`, this is a string value use for the JWT Token signature, you can use any random string here.
+```sh
+APP_KEY=********* # Any random string here.
+```
 
-If you go to your broswer and type [localhost:8890](http://localhost:8890) you must see a welcome message. and if you go to postman and hit [localhost:8890/api](localhost:8890/api) you should see the same message in json format.
+Next, change the credentials for mailtrap `MAILER_DSN` once the .env is created.
+```sh
+MAILER_DSN=smtp://******....***:******....***@sandbox.smtp.mailtrap.io:2525?encryption=ssl&auth_mode=login
+```
+
+
+If you go to your broswer and type [localhost:8890](http://localhost:8890) you must see a welcome message. and if you go to postman and hit [localhost:8890/api](http://localhost:8890/api) you should see the same message in `json` format.
 
 Now let's create our database tables by running the migration command.
 ```sh
@@ -69,6 +80,8 @@ And finally to be to listen/consume the messages broadcastest by RabbyMQ we need
 docker exec -it slim php bin/listener.php
 ```
 now you should see a Started to listen output in your console.
+
+Here you can find the [Postman collection](https://github.com/martin3zra/stocks-tracker/blob/main/Stock%20Tracker.postman_collection.json) to test the app.
 
 And with that you're all set to request stock quotes.
 
