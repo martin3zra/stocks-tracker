@@ -26,8 +26,10 @@ Stock Tracker uses a number of open source projects to work properly:
 - [Symfony Mime](https://github.com/symfony/mime) - Allows manipulating MIME messages
 - [RabbitMQ](https://www.rabbitmq.com) - RabbitMQ is a reliable and mature messaging and streaming broker, which is easy to deploy on cloud environments, on-premises, and on your local machine. It is currently used by millions worldwide.
 
-And of course Stock Tracker itself is open source with a [martin3zra/stocks-tracker](https://github.com/martin3zra/stocks-tracker)
- on GitHub.
+And of course Stock Tracker itself is open source with a [martin3zra/stocks-tracker](https://github.com/martin3zra/stocks-tracker) on GitHub.
+
+## Requirements:
+In order to use and test this REST Api you'll need to have previously set up in your machine a [Docker](https://www.docker.com/) installation.
 
 ## Installation
 
@@ -52,12 +54,23 @@ Install the dependencies and devDependencies and start the server.
 docker exec -it slim composer install
 ```
 
-Let's create the environment file `Make sure to add the APP_KEY, and change the credentials for mailtrap once the .env is created`.
+Let's create the environment file
 ```sh
 cp .env.example .env
 ```
+ 
+Now make sure to add the `APP_KEY`, this is a string value use for the JWT Token signature, you can use any random string here.
+```sh
+APP_KEY=********* # Any random string here.
+```
 
-If you go to your broswer and type [localhost:8890](http://localhost:8890) you must see a welcome message. and if you go to postman and hit [localhost:8890/api](localhost:8890/api) you should see the same message in json format.
+Next, change the credentials for mailtrap `MAILER_DSN` once the .env is created.
+```sh
+MAILER_DSN=smtp://******....***:******....***@sandbox.smtp.mailtrap.io:2525?encryption=ssl&auth_mode=login
+```
+
+
+If you go to your broswer and type [localhost:8890](http://localhost:8890) you must see a welcome message. and if you go to postman and hit [localhost:8890/api](http://localhost:8890/api) you should see the same message in `json` format.
 
 Now let's create our database tables by running the migration command.
 ```sh
@@ -68,9 +81,9 @@ And finally to be to listen/consume the messages broadcastest by RabbyMQ we need
 ```sh
 docker exec -it slim php bin/listener.php
 ```
-now you should see a Started to listen output in your console.
+now you should see a Started to listen output in your console. And with that you're all set to request stock quotes.
 
-And with that you're all set to request stock quotes.
+To help you out, we've provided a [Postman collection](https://github.com/martin3zra/stocks-tracker/blob/main/Stock%20Tracker.postman_collection.json) to test the app that contains the endpoins and payloads you need to test all our features.
 
 ## License
 
