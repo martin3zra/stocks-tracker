@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Actions;
 
 use App\Actions\UserRegister;
@@ -33,7 +35,7 @@ class UserRegisterTest extends BaseTestCase
             'password' => 'Some random password',
         ]);
 
-        $object = json_decode($response->getBody())[0];
+        $object = json_decode((string) $response->getBody())[0];
         $this->assertEquals(422, $response->getStatusCode());
         $this->assertEquals($object->message, "Invalid email");
     }

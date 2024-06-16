@@ -7,7 +7,6 @@ namespace Tests;
 use App\Models\QueryHistory;
 use App\Models\User;
 use DI\ContainerBuilder;
-use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Factory\AppFactory;
@@ -26,6 +25,8 @@ class BaseTestCase extends TestCase
      */
     protected $app;
 
+    protected array $headers = [];
+
     public function setUp(): void
     {
         parent::setUp();
@@ -35,6 +36,18 @@ class BaseTestCase extends TestCase
         // Clean the database
         QueryHistory::query()->forceDelete();
         User::query()->forceDelete();
+
+        $this->headers = [
+            'Accept'=> 'application/json',
+            'Content-Type' => 'application/json',
+        ];
+    }
+
+    public function withHeaders(array $headers = []): self
+    {
+        $this->headers = array_merge($this->headers, $headers);
+
+        return $this;
     }
 
     /**
@@ -69,7 +82,14 @@ class BaseTestCase extends TestCase
         array $headers = [],
     ): Request {
 
-        $uri = new Uri('', 'localhost', 80, $path, '');
+        $query = '';
+        if (str_contains($path, '?')) {
+            $components = explode('?', $path);
+            $path = $components[0];
+            $query = $components[1];
+        }
+
+        $uri = new Uri('', 'localhost', 80, $path, $query);
         $handle = fopen('php://temp', 'w+');
 
         $stream = (new StreamFactory())->createStreamFromResource($handle);
@@ -89,18 +109,40 @@ class BaseTestCase extends TestCase
 
     public function post(string $url, array $payload): ResponseInterface
     {
-        return $this->performRequest('POST', $url, ['Content-Type' => 'application/json'], $payload);
+        return $this->performRequest('POST', $url, [], $payload);
     }
 
-    private function performRequest(string $method, string $url, array $headers = [], array $payload = []): ResponseInterface
+    private function performRequest(
+        string $method,
+        string $url,
+        array $headers = [],
+        array $payload = [],
+    ): ResponseInterface
     {
-        $defaultHeaders = ['Accept'=> 'application/json', 'Content-Type' => 'application/json'];
-        $request = $this->createRequest($method, $url, array_merge($defaultHeaders, $headers));
+        $request = $this->createRequest($method, $url, array_merge($this->headers, $headers));
 
         if ($method == 'POST') {
             $request = $request->withParsedBody($payload);
         }
 
         return $this->app->handle($request);
+    }
+
+    public function asAuthenticated(array $user = [
+            'name' => 'Jane Doe',
+            'email' => 'jane.doe@example.com',
+            'password' => 'Some random password',
+        ]): void
+    {
+        $this->post('/api/users', $user);
+
+        $response = $this->post('/api/auth', [
+            'email' => $user['email'],
+            'password' => $user['password'],
+        ]);
+
+        $data = json_decode((string)$response->getBody());
+
+        $this->withHeaders(["Authorization" => "Bearer $data->token"]);
     }
 }
