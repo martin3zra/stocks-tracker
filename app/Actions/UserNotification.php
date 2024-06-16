@@ -18,14 +18,24 @@ class UserNotification
 
     public function send(array $to, string $attachetmentPath, $html): void
     {
+        $attachetmentPathExists = file_exists(dirname(__FILE__, 3) . "/public/$attachetmentPath");
 
         $email = (new Email())
             ->from('hello@stock-tracker.test')
             ->to(new Address($to['email'], $to['name']))
             ->subject('Stock Query Result!')
-            ->attachFromPath(dirname(__FILE__, 3) . "/public/$attachetmentPath")
             ->html($html);
 
+        if ($attachetmentPathExists) {
+            $email->attachFromPath(
+                dirname(__FILE__, 3) . "/public/$attachetmentPath"
+            );
+        }
+
         $this->mailer->send($email);
+
+        if($attachetmentPathExists) {
+            unlink(dirname(__FILE__, 3) . "/public/$attachetmentPath");
+        }
     }
 }
