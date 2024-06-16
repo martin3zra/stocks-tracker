@@ -1,4 +1,4 @@
-## Stock Tracker
+# Stock Tracker
 
 REST Api application that a user can use to track the value of stocks in stock market. This project is based on [Slim Framework v4](https://www.slimframework.com/docs/v4/).
 
@@ -84,6 +84,12 @@ docker exec -it slim php bin/listener.php
 now you should see a Started to listen output in your console. And with that you're all set to request stock quotes.
 
 To help you out, we've provided a [Postman collection](https://github.com/martin3zra/stocks-tracker/blob/main/Stock%20Tracker.postman_collection.json) to test the app that contains the endpoins and payloads you need to test all our features.
+
+## Run the Test Suite
+PD: If you want to run the test suite make sure you've ran the the `migration command task` first.
+```sh
+docker exec -it slim composer test
+```
 
 ## License
 
