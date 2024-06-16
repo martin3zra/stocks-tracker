@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use App\Models\QueryHistory;
+use App\Models\User;
 use DI\ContainerBuilder;
+use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Factory\AppFactory;
@@ -14,9 +17,25 @@ use Slim\Psr7\Headers;
 use Slim\Psr7\Request as SlimRequest;
 use Slim\Psr7\Uri;
 use Symfony\Component\Dotenv\Dotenv;
+use \Illuminate\Database\Capsule\Manager as Capsule;
 
 class BaseTestCase extends TestCase
 {
+    /**
+     * @var \Slim\App
+     */
+    protected $app;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->app = $this->getAppInstance();
+
+        // Clean the database
+        QueryHistory::query()->forceDelete();
+        User::query()->forceDelete();
+    }
 
     /**
      * @throws Exception
@@ -47,10 +66,12 @@ class BaseTestCase extends TestCase
     protected function createRequest(
         string $method = 'GET',
         string $path = '/',
-        array $headers = ['Accept'=> 'application/json'],
+        array $headers = [],
     ): Request {
-        $uri = new Uri('', 'localhost', 80, $path);
+
+        $uri = new Uri('', 'localhost', 80, $path, '');
         $handle = fopen('php://temp', 'w+');
+
         $stream = (new StreamFactory())->createStreamFromResource($handle);
 
         $h = new Headers();
@@ -66,17 +87,20 @@ class BaseTestCase extends TestCase
         return $this->performRequest('GET', $url);
     }
 
-    public function post(string $url): ResponseInterface
+    public function post(string $url, array $payload): ResponseInterface
     {
-        return $this->performRequest('POST', $url);
+        return $this->performRequest('POST', $url, ['Content-Type' => 'application/json'], $payload);
     }
 
-    private function performRequest(string $method, string $url): ResponseInterface
+    private function performRequest(string $method, string $url, array $headers = [], array $payload = []): ResponseInterface
     {
-        $request = $this->createRequest($method, $url);
+        $defaultHeaders = ['Accept'=> 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, array_merge($defaultHeaders, $headers));
 
-        // Act
-        return $this->getAppInstance()->handle($request);
+        if ($method == 'POST') {
+            $request = $request->withParsedBody($payload);
+        }
+
+        return $this->app->handle($request);
     }
-
 }
