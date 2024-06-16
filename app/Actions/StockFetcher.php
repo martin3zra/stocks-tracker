@@ -31,19 +31,36 @@ class StockFetcher
             return $response->withStatus(422);
         }
 
-        $stockData = $this->requestStockNotifyUserAndLog($request);
+        $statusCode = 200;
+        try {
 
-        $response->getBody()->write(json_encode($stockData));
+            $stockData = $this->requestStockNotifyUserAndLog($request);
 
-        return $response->withStatus(200);
+            $response->getBody()->write(json_encode($stockData));
+        } catch (\Exception $e) {
+            $statusCode = $e->getCode();
+            $response->getBody()->write(json_encode(['message' => $e->getMessage()]));
+        }
+
+        return $response->withStatus($statusCode);
     }
 
+    /**
+     * @throws \Exception
+     **/
     private function requestStockNotifyUserAndLog(Request $request): array
     {
         $stockCode = $request->getQueryParams()['q'];
         $filename = $this->stockClient->getStockInformation($stockCode);
 
         $csvData = array_map('str_getcsv', file($filename));
+
+        // As we download a csv file and the file contains two rows, one for the header
+        // and the other one for the values, so here we just made sure that the value
+        // of the open key is N/D, that mean that the stock symbol does not exists
+        if ($csvData[1][3] == "N/D") {
+            throw new \Exception("$stockCode", 404);
+        }
 
         $user = $request->getAttribute('user');
         $this->queueNotification($user, ['filename' => $filename, 'code' => $stockCode, 'data' => $csvData]);
