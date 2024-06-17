@@ -136,7 +136,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.0.8:8890/api",
+					"raw": "http://localhost:8890/api",
 					"protocol": "http",
 					"host": [
 						"192",
