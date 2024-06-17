@@ -64,7 +64,7 @@ Now make sure to add the `APP_KEY`, this is a string value use for the JWT Token
 APP_KEY=********* # Any random string here.
 ```
 
-Next, change the credentials for mailtrap `MAILER_DSN` once the .env is created.
+Next, change the credentials for mailtrap `MAILER_DSN` once the .env is created. (Here we use the sandbox of Mailtrap as a service)
 ```sh
 MAILER_DSN=smtp://******....***:******....***@sandbox.smtp.mailtrap.io:2525?encryption=ssl&auth_mode=login
 ```
