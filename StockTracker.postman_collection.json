@@ -139,10 +139,7 @@
 					"raw": "http://localhost:8890/api",
 					"protocol": "http",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"8"
+						"localhost"
 					],
 					"port": "8890",
 					"path": [
